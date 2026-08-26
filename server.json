@@ -3,7 +3,16 @@
   "name": "dev.legalize/legalize",
   "title": "Legalize",
   "description": "Official MCP connector for Legalize: read and search its whole open corpus, at any point in time.",
-  "version": "0.16.1",
+  "icons": [
+    {
+      "src": "https://legalize.dev/static/favicon/web-app-manifest-512x512.png",
+      "mimeType": "image/png",
+      "sizes": [
+        "512x512"
+      ]
+    }
+  ],
+  "version": "0.16.2",
   "websiteUrl": "https://legalize.dev/mcp",
   "repository": {
     "url": "https://github.com/legalize-dev/mcp",
