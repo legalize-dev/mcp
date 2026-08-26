@@ -1,10 +1,10 @@
 # Legalize — the MCP connector for consolidated legislation
 
-**What a law said on any past date, in 32 countries, with the citation and the git commit behind it. Your assistant answers from the corpus instead of from memory.**
+**What a law said on any past date, with the citation and the git commit behind it. Your assistant answers from the corpus instead of from memory.**
 
 [![MCP](https://img.shields.io/badge/MCP-Streamable_HTTP-1f6feb)](https://modelcontextprotocol.io)
-[![Read-only](https://img.shields.io/badge/tools-7,_all_read--only-2ea043)](#the-tools)
-[![Auth](https://img.shields.io/badge/auth-OAuth_2.1_(no_anonymous_tier)-f0883e)](#authentication)
+[![Read-only](https://img.shields.io/badge/tools-read--only-2ea043)](#the-tools)
+[![Auth](https://img.shields.io/badge/auth-sign--in_required-f0883e)](#authentication)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow)](LICENSE)
 [![Web](https://img.shields.io/badge/web-legalize.dev-111)](https://legalize.dev)
 
@@ -18,7 +18,7 @@ Connect your AI client (Claude, ChatGPT, Cursor, VS Code, Gemini CLI…) to [**L
 > ```
 > https://legalize.dev/mcp
 > ```
-> Sign-in required, no anonymous tier. See it live at [legalize.dev/mcp](https://legalize.dev/mcp).
+> Sign-in required. See it live at [legalize.dev/mcp](https://legalize.dev/mcp), which always shows the current coverage and allowance.
 
 ---
 
@@ -86,7 +86,7 @@ npx mcp-remote https://legalize.dev/mcp
 
 ## The tools
 
-Seven, **all read-only**. The connector cannot write anything, anywhere — there is no alerting, no subscription and no state to change. The full descriptions the model reads, with every argument and its type, are published verbatim in [`tools.json`](tools.json).
+**All read-only.** The connector cannot write anything, anywhere — there is no alerting, no subscription and no state to change. The full descriptions the model reads, with every argument and its type, are published verbatim in [`tools.json`](tools.json), which is generated from the running server.
 
 | Tool | What it answers |
 |---|---|
@@ -109,15 +109,15 @@ Every tool returns the same envelope — `data`, `citation`, `url`, `source`, `n
 
 ## Authentication
 
-**OAuth 2.1. There is no anonymous tier** — every call is tied to an account, and an unauthenticated request gets `401` with the `WWW-Authenticate` challenge that starts the flow.
+**Sign-in required; there is no anonymous access.** Every call is tied to an account, and an unauthenticated request gets `401` with the `WWW-Authenticate` challenge that starts the OAuth flow.
 
 Your client discovers the authorization server from `https://legalize.dev/.well-known/oauth-protected-resource`, registers itself dynamically, and sends you to sign in once in a browser. After that it holds the token and you never see the handshake again. No API key is pasted anywhere.
 
 ## Limits
 
-- **2,000 calls a month, free.** Past that the connector answers `quota_exceeded` and stops until the month rolls over. Nothing is charged and nothing is cut off silently.
-- **200 calls a minute** on the free tier — a guard against runaway loops, not a working limit.
-- Higher allowances are on the [paid tiers](https://legalize.dev/pricing). Every country is included in all of them.
+There is a free monthly allowance and a per-minute burst guard. Neither number is written here on purpose — they would go stale the day either changes, and a README that quietly lies about a limit is worse than one that points at it. Both are stated, live, on [legalize.dev/mcp](https://legalize.dev/mcp) and [legalize.dev/pricing](https://legalize.dev/pricing).
+
+What does not change: past the monthly allowance the connector answers `quota_exceeded` and stops until the month rolls over — nothing is charged and nothing is cut off silently. **Every country is included in every tier.**
 
 ## Before you quote it
 
@@ -143,7 +143,7 @@ curl -si -X POST https://legalize.dev/mcp \
 # 401 + WWW-Authenticate: Bearer ... resource_metadata="..."   ← correct: that is the handshake
 ```
 
-With a bearer token from the flow above, the same request returns the seven tools — the same list this repository publishes in [`tools.json`](tools.json).
+With a bearer token from the flow above, the same request returns the tool list — the same one this repository publishes in [`tools.json`](tools.json) and the server serves, without a token, at [`/mcp/tools.json`](https://legalize.dev/mcp/tools.json).
 
 ## What is behind the data
 
@@ -156,7 +156,7 @@ Ask what the Spanish Companies Act said in March 2023 and the answer carries com
 git show 3b9aea8d5:es/BOE-A-2010-10544.md
 ```
 
-returns the same bytes. The database the connector queries holds roughly **825,000 laws across 32 countries**, all built from those repositories.
+returns the same bytes. The connector reaches **every country Legalize publishes** — the live list, with the size of each corpus, is on [legalize.dev](https://legalize.dev) and from the `list_countries` tool.
 
 ## More
 

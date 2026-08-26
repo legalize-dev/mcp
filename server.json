@@ -2,8 +2,8 @@
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "dev.legalize/legalize",
   "title": "Legalize",
-  "description": "Official legalize.dev connector: laws from 32 countries as they stood on any past date, git-backed.",
-  "version": "0.16.0",
+  "description": "Official MCP connector for Legalize: read and search its whole open corpus, at any point in time.",
+  "version": "0.16.1",
   "websiteUrl": "https://legalize.dev/mcp",
   "repository": {
     "url": "https://github.com/legalize-dev/mcp",
