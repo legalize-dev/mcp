@@ -1,0 +1,279 @@
+{
+  "server": "dev.legalize/legalize",
+  "endpoint": "https://legalize.dev/mcp",
+  "transport": "streamable-http",
+  "authentication": "oauth2.1",
+  "tools": [
+    {
+      "name": "list_countries",
+      "title": "List countries",
+      "description": "List the countries Legalize covers and how many laws each one has.",
+      "readOnly": true,
+      "inputSchema": {
+        "properties": {},
+        "title": "list_countriesArguments",
+        "type": "object"
+      }
+    },
+    {
+      "name": "search_laws",
+      "title": "Search laws",
+      "description": "Find a norm by words in its title, or by its official number (e.g. '2/2011'), inside one country's corpus. Use this first when you know roughly what a law is called but not its identifier: the `id` it returns is what every other tool here takes. Each result says whether its text is consolidated or the act as published, so you can tell before quoting whether amendments are folded into it.",
+      "readOnly": true,
+      "inputSchema": {
+        "properties": {
+          "country": {
+            "title": "Country",
+            "type": "string"
+          },
+          "q": {
+            "title": "Q",
+            "type": "string"
+          },
+          "type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Type"
+          },
+          "year": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Year"
+          },
+          "jurisdiction": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Jurisdiction"
+          },
+          "limit": {
+            "default": 10,
+            "title": "Limit",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "country",
+          "q"
+        ],
+        "title": "search_lawsArguments",
+        "type": "object"
+      }
+    },
+    {
+      "name": "get_law",
+      "title": "Read a law",
+      "description": "Read what a norm says today. Returns the full Markdown body, or one article of it with `article=` (either the anchor or the literal heading, e.g. 'Artículo 348 bis'). A law too large to send whole comes back as its table of contents instead of a truncated body: ask again for the article you need, or pass `full=true` to accept the whole thing. If the body is an act as published rather than a consolidated text, the answer says so and names the norms that amend it: do not quote that text as the law in force.",
+      "readOnly": true,
+      "inputSchema": {
+        "properties": {
+          "country": {
+            "title": "Country",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "article": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Article"
+          },
+          "full": {
+            "default": false,
+            "title": "Full",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "country",
+          "id"
+        ],
+        "title": "get_lawArguments",
+        "type": "object"
+      }
+    },
+    {
+      "name": "law_at_date",
+      "title": "Read a law as it stood on a date",
+      "description": "What a norm said on a given day. This is the question a search engine cannot answer: not the current text, but the text that was on the books on that date. Resolves the date to the version published on or before it and returns that version with the git SHA behind it, so the quote is reproducible and the other side can check it. Use `article=` for one article of that version. Note the basis: publication date, not entry into force.",
+      "readOnly": true,
+      "inputSchema": {
+        "properties": {
+          "country": {
+            "title": "Country",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "date": {
+            "title": "Date",
+            "type": "string"
+          },
+          "article": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Article"
+          }
+        },
+        "required": [
+          "country",
+          "id",
+          "date"
+        ],
+        "title": "law_at_dateArguments",
+        "type": "object"
+      }
+    },
+    {
+      "name": "diff_law",
+      "title": "Compare two versions of a law",
+      "description": "What changed in a norm between two dates. Returns a unified diff of the two versions and both SHAs, which is what makes the change citable rather than asserted. With `article=`, the diff of that one article; without it, on a law too large to diff whole, the list of headings that changed so you can ask again for the one that matters. Use it to answer 'has this been amended since?' with the text itself.",
+      "readOnly": true,
+      "inputSchema": {
+        "properties": {
+          "country": {
+            "title": "Country",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "date_a": {
+            "title": "Date A",
+            "type": "string"
+          },
+          "date_b": {
+            "title": "Date B",
+            "type": "string"
+          },
+          "article": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Article"
+          }
+        },
+        "required": [
+          "country",
+          "id",
+          "date_a",
+          "date_b"
+        ],
+        "title": "diff_lawArguments",
+        "type": "object"
+      }
+    },
+    {
+      "name": "reform_history",
+      "title": "List the amendments to a law",
+      "description": "Which norms have amended this law, when, and what each one says it touched, newest first. Use it to answer 'is this still current?' and to find the dates worth feeding to law_at_date or diff_law. `since` narrows it to amendments from a date onwards.",
+      "readOnly": true,
+      "inputSchema": {
+        "properties": {
+          "country": {
+            "title": "Country",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "since": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Since"
+          }
+        },
+        "required": [
+          "country",
+          "id"
+        ],
+        "title": "reform_historyArguments",
+        "type": "object"
+      }
+    },
+    {
+      "name": "law_stats",
+      "title": "Size up a country's corpus",
+      "description": "How large a country's corpus is and how much it moves: how many laws, how many recorded amendments, the span of publication dates, and the breakdown by type of norm. Use it to size an answer before drilling into it, or to say honestly how much of a jurisdiction Legalize actually holds.",
+      "readOnly": true,
+      "inputSchema": {
+        "properties": {
+          "country": {
+            "title": "Country",
+            "type": "string"
+          },
+          "jurisdiction": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Jurisdiction"
+          }
+        },
+        "required": [
+          "country"
+        ],
+        "title": "law_statsArguments",
+        "type": "object"
+      }
+    }
+  ]
+}
