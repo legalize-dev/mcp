@@ -86,7 +86,7 @@ npx mcp-remote https://legalize.dev/mcp
 
 ## The tools
 
-**All read-only.** The connector cannot write anything, anywhere — there is no alerting, no subscription and no state to change. The full descriptions the model reads, with every argument and its type, are published verbatim in [`tools.json`](tools.json), which is generated from the running server.
+**All read-only.** The connector cannot write anything, anywhere — there is no alerting, no subscription and no state to change. The full descriptions the model reads, with every argument and its type, are published live by the running server at [`/mcp/tools.json`](https://legalize.dev/mcp/tools.json).
 
 | Tool | What it answers |
 |---|---|
@@ -143,7 +143,7 @@ curl -si -X POST https://legalize.dev/mcp \
 # 401 + WWW-Authenticate: Bearer ... resource_metadata="..."   ← correct: that is the handshake
 ```
 
-With a bearer token from the flow above, the same request returns the tool list — the same one this repository publishes in [`tools.json`](tools.json) and the server serves, without a token, at [`/mcp/tools.json`](https://legalize.dev/mcp/tools.json).
+With a bearer token from the flow above, the same request returns the tool list — the same one the server serves, without a token, at [`/mcp/tools.json`](https://legalize.dev/mcp/tools.json).
 
 ## What is behind the data
 
