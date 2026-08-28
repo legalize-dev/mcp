@@ -30,7 +30,7 @@ It is a **remote** server (Streamable HTTP, stateless). Nothing is installed: yo
 
 [![Add to Claude](https://img.shields.io/badge/Add_to_Claude-D97757?style=for-the-badge)](https://claude.ai/customize/connectors?modal=add-custom-connector&connectorName=Legalize&connectorUrl=https%3A%2F%2Flegalize.dev%2Fmcp) [![Add to Cursor](https://img.shields.io/badge/Add_to_Cursor-000000?style=for-the-badge)](https://cursor.com/en/install-mcp?name=legalize&config=eyJ1cmwiOiJodHRwczovL2xlZ2FsaXplLmRldi9tY3AifQ%3D%3D) [![Add to VS Code](https://img.shields.io/badge/Add_to_VS_Code-0098FF?style=for-the-badge)](https://vscode.dev/redirect/mcp/install?name=legalize&config=%7B%22type%22%3A%22http%22%2C%22url%22%3A%22https%3A%2F%2Flegalize.dev%2Fmcp%22%7D) [![Add to ChatGPT](https://img.shields.io/badge/Add_to_ChatGPT-10A37F?style=for-the-badge)](https://chatgpt.com/plugins#settings/Connectors?create-connector=true&redirectAfter=%2Fplugins)
 
-Each one pre-fills the name and the address, then asks you to confirm it and sign in. **ChatGPT is the exception:** it has no per-server link unless the connector is in its directory, so that button opens the create-connector form and you paste `https://legalize.dev/mcp` into it.
+The first three pre-fill the name and the address, then ask you to confirm it and sign in. **ChatGPT opens its create-connector form** — it takes no parameter for the server, so paste `https://legalize.dev/mcp` in yourself, with developer mode on under Advanced.
 
 ### Claude.ai · Claude Desktop (Connectors)
 
@@ -67,7 +67,7 @@ Use the button above, or in `.vscode/mcp.json`:
 ```
 
 ### ChatGPT
-Developer mode → Settings → **Connectors** → create a connector and paste `https://legalize.dev/mcp`.
+Settings → **Connectors** → **Advanced** → turn on **developer mode**, then create a connector and paste `https://legalize.dev/mcp`. There is no install link for this one: ChatGPT only deep-links to apps listed in its own directory, and custom connectors sit behind developer mode, on Plus or Pro.
 
 ### Gemini CLI and other clients
 ```json
