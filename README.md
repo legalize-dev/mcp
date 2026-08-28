@@ -26,12 +26,15 @@ Connect your AI client (Claude, ChatGPT, Cursor, VS Code, Gemini CLI…) to [**L
 
 It is a **remote** server (Streamable HTTP, stateless). Nothing is installed: you hand the URL to your client, and the client walks you through the sign-in the first time it calls a tool.
 
+**One click, if yours is one of these:**
+
+[![Add to Claude](https://img.shields.io/badge/Add_to_Claude-D97757?style=for-the-badge)](https://claude.ai/customize/connectors?modal=add-custom-connector&connectorName=Legalize&connectorUrl=https%3A%2F%2Flegalize.dev%2Fmcp) [![Add to Cursor](https://img.shields.io/badge/Add_to_Cursor-000000?style=for-the-badge)](https://cursor.com/en/install-mcp?name=legalize&config=eyJ1cmwiOiJodHRwczovL2xlZ2FsaXplLmRldi9tY3AifQ%3D%3D) [![Add to VS Code](https://img.shields.io/badge/Add_to_VS_Code-0098FF?style=for-the-badge)](https://vscode.dev/redirect/mcp/install?name=legalize&config=%7B%22type%22%3A%22http%22%2C%22url%22%3A%22https%3A%2F%2Flegalize.dev%2Fmcp%22%7D) [![Add to ChatGPT](https://img.shields.io/badge/Add_to_ChatGPT-10A37F?style=for-the-badge)](https://chatgpt.com/plugins#settings/Connectors?create-connector=true&redirectAfter=%2Fplugins)
+
+Each one pre-fills the name and the address, then asks you to confirm it and sign in. **ChatGPT is the exception:** it has no per-server link unless the connector is in its directory, so that button opens the create-connector form and you paste `https://legalize.dev/mcp` into it.
+
 ### Claude.ai · Claude Desktop (Connectors)
 
 Settings → **Connectors** → **Add custom connector** → paste `https://legalize.dev/mcp`.
-
-Or use the one-click link, which pre-fills the name and the address:
-**[Add Legalize to Claude](https://claude.ai/customize/connectors?modal=add-custom-connector&connectorName=Legalize&connectorUrl=https%3A%2F%2Flegalize.dev%2Fmcp)**. Claude asks you to confirm the address, then to sign in.
 
 ### Claude Code (CLI)
 ```bash
@@ -39,7 +42,7 @@ claude mcp add --transport http legalize https://legalize.dev/mcp
 ```
 
 ### Cursor
-In `~/.cursor/mcp.json`:
+Use the button above, or in `~/.cursor/mcp.json`:
 ```json
 {
   "mcpServers": {
@@ -51,7 +54,7 @@ In `~/.cursor/mcp.json`:
 ```
 
 ### VS Code (GitHub Copilot)
-In `.vscode/mcp.json`:
+Use the button above, or in `.vscode/mcp.json`:
 ```json
 {
   "servers": {
@@ -133,17 +136,26 @@ A body is never truncated: a law too large to send whole comes back as its table
 
 ## For developers
 
-Transport is **Streamable HTTP**, **stateless**. The handshake, unauthenticated, is the thing to check first:
+Transport is **Streamable HTTP**, **stateless**. The tool list needs no token, so the first thing to check is what the connector says it can do:
+
+```bash
+curl -s -X POST https://legalize.dev/mcp \
+  -H 'Content-Type: application/json' \
+  -H 'Accept: application/json, text/event-stream' \
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/list","params":{}}' | jq '.result.tools[].name'
+```
+
+`initialize` and `tools/list` answer anonymously, so any client or directory can see what the connector does before anyone signs in. The same catalogue is served over a plain GET at [`/mcp/tools.json`](https://legalize.dev/mcp/tools.json).
+
+**Calling a tool is what requires the token**, and that is where the OAuth dance starts:
 
 ```bash
 curl -si -X POST https://legalize.dev/mcp \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json, text/event-stream' \
-  -d '{"jsonrpc":"2.0","id":1,"method":"tools/list","params":{}}' | head -20
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"list_countries","arguments":{}}}' | head -20
 # 401 + WWW-Authenticate: Bearer ... resource_metadata="..."   ← correct: that is the handshake
 ```
-
-With a bearer token from the flow above, the same request returns the tool list — the same one the server serves, without a token, at [`/mcp/tools.json`](https://legalize.dev/mcp/tools.json).
 
 ## What is behind the data
 
