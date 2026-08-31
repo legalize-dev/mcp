@@ -106,7 +106,7 @@ Four more manage **your own** webhook subscriptions — the one question reading
 | Tool | What it does |
 |---|---|
 | **`preview_webhook`** | Try a subscription rule against the last 30 days without creating anything: how many events it would have delivered, and which. |
-| **`create_webhook`** ✎ | Subscribe an HTTPS endpoint of yours to law changes. Narrow it to specific laws, to words in the title and subject headings, or to countries. Returns the signing secret **once**. |
+| **`create_webhook`** ✎ | Subscribe an HTTPS endpoint of yours to law changes. Narrow it to specific laws, to words in the title and subject headings, or to countries. The signing secret is **not** returned: it can forge a delivery, and anything a tool returns stays in the transcript. Collect and rotate it in the dashboard. |
 | **`list_webhooks`** | The endpoints this account has, and the `id` to delete one by. Secrets are never returned. |
 | **`delete_webhook`** ✎ | Remove one. Deliveries stop, and its history goes with it. |
 
