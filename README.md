@@ -3,7 +3,7 @@
 **What a law said on any past date, with the citation and the git commit behind it. Your assistant answers from the corpus instead of from memory.**
 
 [![MCP](https://img.shields.io/badge/MCP-Streamable_HTTP-1f6feb)](https://modelcontextprotocol.io)
-[![Read-only](https://img.shields.io/badge/tools-read--only-2ea043)](#the-tools)
+[![Corpus read-only](https://img.shields.io/badge/corpus-read--only-2ea043)](#the-tools)
 [![Auth](https://img.shields.io/badge/auth-sign--in_required-f0883e)](#authentication)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow)](LICENSE)
 [![Web](https://img.shields.io/badge/web-legalize.dev-111)](https://legalize.dev)
@@ -89,7 +89,7 @@ npx mcp-remote https://legalize.dev/mcp
 
 ## The tools
 
-**All read-only.** The connector cannot write anything, anywhere — there is no alerting, no subscription and no state to change. The full descriptions the model reads, with every argument and its type, are published live by the running server at [`/mcp/tools.json`](https://legalize.dev/mcp/tools.json).
+**Nothing here can change a law.** The corpus is read-only to the connector: no tool alters a text, a version or a history, because those come from the git repositories and this server has no way in. The full descriptions the model reads, with every argument and its type, are published live by the running server at [`/mcp/tools.json`](https://legalize.dev/mcp/tools.json).
 
 | Tool | What it answers |
 |---|---|
@@ -100,6 +100,16 @@ npx mcp-remote https://legalize.dev/mcp
 | **`diff_law`** | What changed between two dates, as a unified diff of the two texts. |
 | **`reform_history`** | Which norms amended this one, when, and what each says it touched. |
 | **`law_stats`** | How large a corpus is and how much it moves, before drilling into it. |
+
+Three more manage **your own** webhook subscriptions — the one question reading the corpus cannot answer, which is *tell me when this changes*. They are the only tools that write anything, what they write is your account's own subscription, and they need a paid plan:
+
+| Tool | What it does |
+|---|---|
+| **`create_webhook`** ✎ | Subscribe an HTTPS endpoint of yours to law changes. Returns the signing secret **once**. |
+| **`list_webhooks`** | The endpoints this account has, and the `id` to delete one by. Secrets are never returned. |
+| **`delete_webhook`** ✎ | Remove one. Deliveries stop, and its history goes with it. |
+
+The two marked ✎ are declared to clients with `readOnlyHint: false`, so a client that confirms before a write will confirm before these. On a plan without webhooks all three answer a structured `feature_not_available` error and create nothing. Deliveries are signed and batched daily, not instant — [the format and the verifier](https://legalize.dev/docs/webhooks).
 
 Every tool returns the same envelope — `data`, `citation`, `url`, `source`, `note` — and every result links back to its page on [legalize.dev](https://legalize.dev). A tool-level failure is a *successful* call whose `data` is a structured error naming what to do next, so the model can correct itself instead of guessing.
 
@@ -136,18 +146,13 @@ A body is never truncated: a law too large to send whole comes back as its table
 
 ## For developers
 
-Transport is **Streamable HTTP**, **stateless**. The tool list needs no token, so the first thing to check is what the connector says it can do:
+Transport is **Streamable HTTP**, **stateless**. Every JSON-RPC method needs a token, `initialize` and `tools/list` included. So the first thing to check is the catalogue, which is served beside the endpoint as a plain GET and needs nothing:
 
 ```bash
-curl -s -X POST https://legalize.dev/mcp \
-  -H 'Content-Type: application/json' \
-  -H 'Accept: application/json, text/event-stream' \
-  -d '{"jsonrpc":"2.0","id":1,"method":"tools/list","params":{}}' | jq '.result.tools[].name'
+curl -s https://legalize.dev/mcp/tools.json | jq '.tools[] | {name, readOnly}'
 ```
 
-`initialize` and `tools/list` answer anonymously, so any client or directory can see what the connector does before anyone signs in. The same catalogue is served over a plain GET at [`/mcp/tools.json`](https://legalize.dev/mcp/tools.json).
-
-**Calling a tool is what requires the token**, and that is where the OAuth dance starts:
+That is what a directory reads, and it is where `readOnly` per tool is published. The JSON-RPC endpoint itself answers 401, and that 401 **is** the handshake — its `WWW-Authenticate` header is what tells a client where the authorization server is:
 
 ```bash
 curl -si -X POST https://legalize.dev/mcp \
@@ -156,6 +161,8 @@ curl -si -X POST https://legalize.dev/mcp \
   -d '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"list_countries","arguments":{}}}' | head -20
 # 401 + WWW-Authenticate: Bearer ... resource_metadata="..."   ← correct: that is the handshake
 ```
+
+Once signed in, the same call answers with the tool's payload.
 
 ## What is behind the data
 
@@ -180,6 +187,6 @@ returns the same bytes. The connector reaches **every country Legalize publishes
 
 ## About Legalize
 
-[Legalize](https://legalize.dev) turns official gazettes into git: consolidated legislation as Markdown, one commit per reform, one repository per country. This repository documents its **MCP connector** — the read-only surface an AI assistant talks to.
+[Legalize](https://legalize.dev) turns official gazettes into git: consolidated legislation as Markdown, one commit per reform, one repository per country. This repository documents its **MCP connector** — the surface an AI assistant talks to.
 
 [legalize.dev](https://legalize.dev) · [MIT](LICENSE) licence

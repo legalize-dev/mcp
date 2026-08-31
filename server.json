@@ -2,7 +2,7 @@
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "dev.legalize/legalize",
   "title": "Legalize",
-  "description": "Official MCP connector for Legalize: read and search its whole open corpus, at any point in time.",
+  "description": "Official MCP connector for Legalize: read and search its whole open corpus, at any point in time, and subscribe to the changes.",
   "icons": [
     {
       "src": "https://legalize.dev/static/favicon/web-app-manifest-512x512.png",
@@ -12,7 +12,7 @@
       ]
     }
   ],
-  "version": "0.18.0",
+  "version": "0.19.0",
   "websiteUrl": "https://legalize.dev/mcp",
   "repository": {
     "url": "https://github.com/legalize-dev/mcp",
