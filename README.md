@@ -101,15 +101,18 @@ npx mcp-remote https://legalize.dev/mcp
 | **`reform_history`** | Which norms amended this one, when, and what each says it touched. |
 | **`law_stats`** | How large a corpus is and how much it moves, before drilling into it. |
 
-Three more manage **your own** webhook subscriptions — the one question reading the corpus cannot answer, which is *tell me when this changes*. They are the only tools that write anything, what they write is your account's own subscription, and they need a paid plan:
+Four more manage **your own** webhook subscriptions — the one question reading the corpus cannot answer, which is *tell me when this changes*. They are the only tools that write anything, what they write is your account's own subscription, and they need a paid plan:
 
 | Tool | What it does |
 |---|---|
-| **`create_webhook`** ✎ | Subscribe an HTTPS endpoint of yours to law changes. Returns the signing secret **once**. |
+| **`preview_webhook`** | Try a subscription rule against the last 30 days without creating anything: how many events it would have delivered, and which. |
+| **`create_webhook`** ✎ | Subscribe an HTTPS endpoint of yours to law changes. Narrow it to specific laws, to words in the title and subject headings, or to countries. Returns the signing secret **once**. |
 | **`list_webhooks`** | The endpoints this account has, and the `id` to delete one by. Secrets are never returned. |
 | **`delete_webhook`** ✎ | Remove one. Deliveries stop, and its history goes with it. |
 
-The two marked ✎ are declared to clients with `readOnlyHint: false`, so a client that confirms before a write will confirm before these. On a plan without webhooks all three answer a structured `feature_not_available` error and create nothing. Deliveries are signed and batched daily, not instant — [the format and the verifier](https://legalize.dev/docs/webhooks).
+Narrow the subscription or you will stop reading it. The filters compose as AND, a rule that could never match — an unknown country, a law id that is not in the corpus — is refused rather than stored, and a text filter reaches **one language**: laws are written in their own, so *proteccion de datos* finds the Spanish act and not the Portuguese *protecao de dados*.
+
+The two marked ✎ are declared to clients with `readOnlyHint: false`, so a client that confirms before a write will confirm before these. On a plan without webhooks all four answer a structured `feature_not_available` error and create nothing. Deliveries are signed and batched daily, not instant — [the format and the verifier](https://legalize.dev/docs/webhooks).
 
 Every tool returns the same envelope — `data`, `citation`, `url`, `source`, `note` — and every result links back to its page on [legalize.dev](https://legalize.dev). A tool-level failure is a *successful* call whose `data` is a structured error naming what to do next, so the model can correct itself instead of guessing.
 
