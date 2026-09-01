@@ -101,18 +101,25 @@ npx mcp-remote https://legalize.dev/mcp
 | **`reform_history`** | Which norms amended this one, when, and what each says it touched. |
 | **`law_stats`** | How large a corpus is and how much it moves, before drilling into it. |
 
-Four more manage **your own** webhook subscriptions — the one question reading the corpus cannot answer, which is *tell me when this changes*. They are the only tools that write anything, what they write is your account's own subscription, and they need a paid plan:
+The rest manage **your own** subscriptions — the one question reading the corpus cannot answer, which is *tell me when this changes*. They are the only tools that write anything, what they write is your account's own subscription, and they need a paid plan.
+
+One rule, two ways to receive it. A webhook posts every change to a server you run; a digest lists a day of them in your inbox:
 
 | Tool | What it does |
 |---|---|
-| **`preview_webhook`** | Try a subscription rule against the last 30 days without creating anything: how many events it would have delivered, and which. |
+| **`preview_webhook`** | Try a subscription rule against the last 30 days without creating anything: how many events it would have delivered, and which. Works for either delivery — it tries the rule, not the destination. |
 | **`create_webhook`** ✎ | Subscribe an HTTPS endpoint of yours to law changes. Narrow it to specific laws, to words in the title and subject headings, or to countries. The signing secret is **not** returned: it can forge a delivery, and anything a tool returns stays in the transcript. Collect and rotate it in the dashboard. |
 | **`list_webhooks`** | The endpoints this account has, and the `id` to delete one by. Secrets are never returned. |
 | **`delete_webhook`** ✎ | Remove one. Deliveries stop, and its history goes with it. |
+| **`create_email_digest`** ✎ | The same rule, delivered as one email a day instead — the version you can receive without running anything. `lang` picks the language of the mail, not of the laws. |
+| **`list_email_digests`** | The digests this account gets, with the rule and language of each, and the `id` to delete one by. |
+| **`delete_email_digest`** ✎ | Stop one. The daily mail ends immediately. |
+
+**The digest goes to the account's own address and there is no argument for another one.** Not an omission: a free-text recipient would turn a connector into a way to send mail to somebody else, signed by our domain, on a model's say-so.
 
 Narrow the subscription or you will stop reading it. The filters compose as AND, a rule that could never match — an unknown country, a law id that is not in the corpus — is refused rather than stored, and a text filter reaches **one language**: laws are written in their own, so *proteccion de datos* finds the Spanish act and not the Portuguese *protecao de dados*.
 
-The two marked ✎ are declared to clients with `readOnlyHint: false`, so a client that confirms before a write will confirm before these. On a plan without webhooks all four answer a structured `feature_not_available` error and create nothing. Deliveries are signed and batched daily, not instant — [the format and the verifier](https://legalize.dev/docs/webhooks).
+The ones marked ✎ are declared to clients with `readOnlyHint: false`, so a client that confirms before a write will confirm before these. On a plan without them they all answer a structured `feature_not_available` error and create nothing. Neither delivery is instant: webhooks are signed and batched daily ([the format and the verifier](https://legalize.dev/docs/webhooks)), and a digest is one mail a day — on a day when nothing matched, no mail at all.
 
 Every tool returns the same envelope — `data`, `citation`, `url`, `source`, `note` — and every result links back to its page on [legalize.dev](https://legalize.dev). A tool-level failure is a *successful* call whose `data` is a structured error naming what to do next, so the model can correct itself instead of guessing.
 
@@ -122,6 +129,7 @@ Every tool returns the same envelope — `data`, `citation`, `url`, `source`, `n
 - *"Has the French Code du travail changed on this point since 2020? Show me the diff."*
 - *"Which norms have amended this law, and when?"*
 - *"How much of Latvian legislation does Legalize actually hold?"*
+- *"Email me every morning when anything about data protection changes in Spain — in Spanish."*
 
 ## Authentication
 
