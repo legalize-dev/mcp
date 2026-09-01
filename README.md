@@ -109,17 +109,19 @@ One rule, two ways to receive it. A webhook posts every change to a server you r
 |---|---|
 | **`preview_webhook`** | Try a subscription rule against the last 30 days without creating anything: how many events it would have delivered, and which. Works for either delivery — it tries the rule, not the destination. |
 | **`create_webhook`** ✎ | Subscribe an HTTPS endpoint of yours to law changes. Narrow it to specific laws, to words in the title and subject headings, or to countries. The signing secret is **not** returned: it can forge a delivery, and anything a tool returns stays in the transcript. Collect and rotate it in the dashboard. |
-| **`list_webhooks`** | The endpoints this account has, and the `id` to delete one by. Secrets are never returned. |
+| **`list_webhooks`** | The endpoints this account has, and the `id` the other two take. Secrets are never returned. |
+| **`set_webhook_enabled`** ✎ | Pause one, or start it again. The endpoint, its rule and its history all stay. |
 | **`delete_webhook`** ✎ | Remove one. Deliveries stop, and its history goes with it. |
 | **`create_email_digest`** ✎ | The same rule, delivered as one email a day instead — the version you can receive without running anything. `lang` picks the language of the mail, not of the laws. |
-| **`list_email_digests`** | The digests this account gets, with the rule and language of each, and the `id` to delete one by. |
-| **`delete_email_digest`** ✎ | Stop one. The daily mail ends immediately. |
+| **`list_email_digests`** | The digests this account gets, with the rule and language of each, and the `id` the other two take. |
+| **`set_email_digest_enabled`** ✎ | Pause the mail, or start it again. A paused digest keeps its place: what it missed arrives in the first mail after it resumes. |
+| **`delete_email_digest`** ✎ | Stop one for good. Recreated later, it starts from that day and the gap is not sent. |
 
 **The digest goes to the account's own address and there is no argument for another one.** Not an omission: a free-text recipient would turn a connector into a way to send mail to somebody else, signed by our domain, on a model's say-so.
 
 Narrow the subscription or you will stop reading it. The filters compose as AND, a rule that could never match — an unknown country, a law id that is not in the corpus — is refused rather than stored, and a text filter reaches **one language**: laws are written in their own, so *proteccion de datos* finds the Spanish act and not the Portuguese *protecao de dados*.
 
-The ones marked ✎ are declared to clients with `readOnlyHint: false`, so a client that confirms before a write will confirm before these. On a plan without them they all answer a structured `feature_not_available` error and create nothing. Neither delivery is instant: webhooks are signed and batched daily ([the format and the verifier](https://legalize.dev/docs/webhooks)), and a digest is one mail a day — on a day when nothing matched, no mail at all.
+The ones marked ✎ are declared to clients with `readOnlyHint: false`, so a client that confirms before a write will confirm before these. A paid plan is needed to **create** one; pausing and deleting never are, on any plan, because the account that most needs to turn its deliveries off is the one whose plan has just ended. On a plan without the feature, creating answers a structured `feature_not_available` error and creates nothing — and nothing is delivered either, to an endpoint or to an inbox, until it is back. Neither delivery is instant: webhooks are signed and batched daily ([the format and the verifier](https://legalize.dev/docs/webhooks)), and a digest is one mail a day — on a day when nothing matched, no mail at all.
 
 Every tool returns the same envelope — `data`, `citation`, `url`, `source`, `note` — and every result links back to its page on [legalize.dev](https://legalize.dev). A tool-level failure is a *successful* call whose `data` is a structured error naming what to do next, so the model can correct itself instead of guessing.
 
