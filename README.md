@@ -179,7 +179,9 @@ Once signed in, the same call answers with the tool's payload.
 
 ## What is behind the data
 
-Legalize builds one public git repository per country: every law is a Markdown file, and **every reform is a dated commit**. That is where the SHA in an answer comes from — it is a commit in a public repo, not an identifier minted for the reply.
+Legalize builds one public git repository per country: every law is a Markdown file, and **every reform it holds is a dated commit**. That is where the SHA in an answer comes from — it is a commit in a public repo, not an identifier minted for the reply.
+
+Where a corpus starts later than the act it holds — a source that publishes its consolidated texts from 1996 onwards, say, for a code from 1885 — `reform_history` says so in `history`, and asking for a date before that is a plain "the corpus starts on X", never a retry.
 
 Ask what the Spanish Companies Act said in March 2023 and the answer carries commit
 `3b9aea8d5` of [`legalize-dev/legalize-es`](https://github.com/legalize-dev/legalize-es):
@@ -188,7 +190,7 @@ Ask what the Spanish Companies Act said in March 2023 and the answer carries com
 git show 3b9aea8d5:es/BOE-A-2010-10544.md
 ```
 
-returns the same bytes. The connector reaches **every country Legalize publishes** — the live list, with the size of each corpus, is on [legalize.dev](https://legalize.dev) and from the `list_countries` tool.
+returns that file: the text the connector hands back, under the YAML frontmatter the corpus keeps its metadata in. The connector reaches **every country Legalize publishes** — the live list, with the size of each corpus, is on [legalize.dev](https://legalize.dev) and from the `list_countries` tool.
 
 ## More
 
